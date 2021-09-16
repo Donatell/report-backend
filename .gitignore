@@ -1,7 +1,16 @@
 src/main/resources/application-prod.properties
 src/main/resources/application-dev.properties
 
+# SSL keys
+src/main/resources/keystore.p12
+
+# angular build
+src/main/resources/static/**
+
+# report .xlsx files
 reports
+
+kvm-tools_ru.crt
 
 HELP.md
 target/

@@ -76,6 +76,21 @@ public class PatientListParser {
 				continue;
 			}
 			
+			// trim profession and department
+			if (patient.getProfession() == null) {
+				patient.setProfession("");
+			}
+			if (patient.getDepartment() == null) {
+				patient.setDepartment("");
+			}
+			patient.setDepartment(patient.getDepartment().trim());
+			patient.setProfession(patient.getProfession().trim());
+			
+			// convert factor codes to factor ids
+			if (patient.getFactorCodes() == null) {
+				patient.setFactorCodes("");
+			}
+			
 			// skip headers
 			if (headerKeywords.contains(patient.getDepartment().trim()) || headerKeywords.contains(patient.getFullName()
 					.trim()) ||
@@ -129,10 +144,6 @@ public class PatientListParser {
 				hasUnidentifiedGender = true;
 			}
 			
-			// convert factor codes to factor ids
-			if (patient.getFactorCodes() == null) {
-				patient.setFactorCodes("");
-			}
 			List<Integer> factorIdList = new ArrayList<>();
 			for (String factorCode : patient.getFactorCodes().split(";")) {
 				if (!factorCode.endsWith(".")) {
@@ -175,16 +186,6 @@ public class PatientListParser {
 			}
 			
 			patient.setPatientListId(patientList.getId());
-			
-			// trim profession and department
-			if (patient.getProfession() == null) {
-				patient.setProfession("");
-			}
-			if (patient.getDepartment() == null) {
-				patient.setDepartment("");
-			}
-			patient.setDepartment(patient.getDepartment().trim());
-			patient.setProfession(patient.getProfession().trim());
 			
 			// store the patient as unique
 			uniquePatients.add(patient);
