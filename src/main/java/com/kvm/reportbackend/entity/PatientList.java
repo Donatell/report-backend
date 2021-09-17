@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class PatientList {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
+	@Column(name = "patient_list_id")
 	private long id;
 	
 	@Column(name = "company_name")
@@ -28,8 +28,7 @@ public class PatientList {
 	@Column(name = "extra_service")
 	private String extraService;
 	
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-	@JoinColumn(name = "patient_list_id")
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "patientList")
 	private List<Patient> patients;
 	
 	@Column(name = "creation_date")

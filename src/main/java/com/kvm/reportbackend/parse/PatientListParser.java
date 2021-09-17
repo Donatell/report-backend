@@ -185,7 +185,7 @@ public class PatientListParser {
 				}
 			}
 			
-			patient.setPatientListId(patientList.getId());
+			patient.setPatientList(patientList);
 			
 			// store the patient as unique
 			uniquePatients.add(patient);

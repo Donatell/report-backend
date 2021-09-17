@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class Patient {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
+	@Column(name = "patient_id")
 	private long id;
 	
 	@Column(name = "full_name")
@@ -40,8 +40,9 @@ public class Patient {
 	@Column(name = "department")
 	private String department;
 	
-	@Column(name = "patient_list_id")
-	private long patientListId;
+	@ManyToOne()
+	@JoinColumn(name = "patient_list_id")
+	private PatientList patientList;
 	
 	@Column(name = "service_id")
 	private String serviceId;
