@@ -18,14 +18,11 @@ import java.nio.file.Path;
 public class PatientListsController {
 	private final PatientListRepository patientListRepository;
 	
-	private final PatientRepository patientRepository;
-	
 	public PatientListsController(PatientListRepository patientListRepository, PatientRepository patientRepository) {
 		this.patientListRepository = patientListRepository;
-		this.patientRepository = patientRepository;
 	}
 	
-	@DeleteMapping("/patientLists/{patientListId}")
+	@DeleteMapping("/delete-patient-list/{patientListId}")
 	public void deletePatientList(@PathVariable("patientListId") long patientListId) throws IOException {
 		patientListRepository.delete(patientListRepository.getById(patientListId));
 		

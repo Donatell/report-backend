@@ -1,5 +1,6 @@
 package com.kvm.reportbackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -25,7 +26,7 @@ public class Patient {
 	private LocalDate birthDate;
 	
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "gender_id", nullable = false)
+	@JoinColumn(name = "gender_id")
 	private Gender gender;
 	
 	@Column(name = "factor_codes")
@@ -40,8 +41,9 @@ public class Patient {
 	@Column(name = "department")
 	private String department;
 	
-	@ManyToOne()
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "patient_list_id")
+	@JsonBackReference
 	private PatientList patientList;
 	
 	@Column(name = "service_id")

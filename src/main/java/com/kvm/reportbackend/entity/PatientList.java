@@ -1,5 +1,6 @@
 package com.kvm.reportbackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.kvm.reportbackend.dao.ServiceRepository;
 import com.kvm.reportbackend.specify.PriceData;
 import lombok.Data;
@@ -29,6 +30,7 @@ public class PatientList {
 	private String extraService;
 	
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "patientList")
+	@JsonManagedReference
 	private List<Patient> patients;
 	
 	@Column(name = "creation_date")
