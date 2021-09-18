@@ -1,7 +1,12 @@
 package com.kvm.reportbackend.upload_download;
 
-import com.kvm.reportbackend.dao.*;
-import com.kvm.reportbackend.entity.*;
+import com.kvm.reportbackend.dao.ColumnTitleRepository;
+import com.kvm.reportbackend.dao.PatientListRepository;
+import com.kvm.reportbackend.dao.PatientRepository;
+import com.kvm.reportbackend.dao.ServiceRepository;
+import com.kvm.reportbackend.entity.ColumnTitle;
+import com.kvm.reportbackend.entity.Patient;
+import com.kvm.reportbackend.entity.PatientList;
 import com.kvm.reportbackend.specify.PriceData;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -28,18 +33,12 @@ public class ReportWriter {
 	
 	private final ColumnTitleRepository columnTitleRepository;
 	
-	private final List<Service> services;
-	
-	private final List<Factor> factors;
-	
 	@Autowired
-	public ReportWriter(PatientListRepository patientListRepository, PatientRepository patientRepository, ServiceRepository serviceRepository, FactorRepository factorRepository, ColumnTitleRepository columnTitleRepository) {
+	public ReportWriter(PatientListRepository patientListRepository, PatientRepository patientRepository, ServiceRepository serviceRepository, ColumnTitleRepository columnTitleRepository) {
 		this.patientListRepository = patientListRepository;
 		this.patientRepository = patientRepository;
 		this.serviceRepository = serviceRepository;
 		this.columnTitleRepository = columnTitleRepository;
-		this.services = serviceRepository.findAll();
-		this.factors = factorRepository.findAll();
 	}
 	
 	public void writeReports(long patientListId) throws IOException {
@@ -51,11 +50,11 @@ public class ReportWriter {
 		String reportsDirectory = System.getProperty("user.dir") + "/reports/" + patientListId;
 		boolean b = new File(reportsDirectory).mkdirs();
 		
-		writeGeneralReport(patientList, patients, priceDataList, reportsDirectory);
-		writeDetailedReport(patientList, patients, priceDataList, columnTitleList, reportsDirectory);
+		writeGeneralReport(priceDataList, reportsDirectory);
+		writeDetailedReport(patients, priceDataList, columnTitleList, reportsDirectory);
 	}
 	
-	private void writeGeneralReport(PatientList patientList, List<Patient> patients, List<PriceData> priceDataList, String reportsDirectory) throws IOException {
+	private void writeGeneralReport(List<PriceData> priceDataList, String reportsDirectory) throws IOException {
 		Workbook wb = new XSSFWorkbook();
 		Sheet sh = wb.createSheet("Общая спецификация");
 		
@@ -184,7 +183,7 @@ public class ReportWriter {
 		}
 	}
 	
-	private void writeDetailedReport(PatientList patientList, List<Patient> patients, List<PriceData> priceDataList, List<ColumnTitle> columnTitleList, String reportsDirectory) throws IOException {
+	private void writeDetailedReport(List<Patient> patients, List<PriceData> priceDataList, List<ColumnTitle> columnTitleList, String reportsDirectory) throws IOException {
 		Workbook wb = new XSSFWorkbook();
 		Sheet sh = wb.createSheet("Поимённый расчёт");
 		

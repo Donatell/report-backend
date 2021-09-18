@@ -18,10 +18,8 @@ import java.nio.file.Paths;
 @RestController
 @RequestMapping("/api")
 public class FileDownloadController {
-	private final PatientListRepository patientListRepository;
 	
 	public FileDownloadController(PatientListRepository patientListRepository) {
-		this.patientListRepository = patientListRepository;
 	}
 	
 	@GetMapping("/download/{patientListId}/{reportType}")

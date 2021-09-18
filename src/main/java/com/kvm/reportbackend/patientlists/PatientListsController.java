@@ -1,7 +1,6 @@
 package com.kvm.reportbackend.patientlists;
 
 import com.kvm.reportbackend.dao.PatientListRepository;
-import com.kvm.reportbackend.dao.PatientRepository;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +17,7 @@ import java.nio.file.Path;
 public class PatientListsController {
 	private final PatientListRepository patientListRepository;
 	
-	public PatientListsController(PatientListRepository patientListRepository, PatientRepository patientRepository) {
+	public PatientListsController(PatientListRepository patientListRepository) {
 		this.patientListRepository = patientListRepository;
 	}
 	
