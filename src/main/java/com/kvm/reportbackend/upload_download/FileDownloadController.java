@@ -1,6 +1,5 @@
 package com.kvm.reportbackend.upload_download;
 
-import com.kvm.reportbackend.dao.PatientListRepository;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -19,7 +18,7 @@ import java.nio.file.Paths;
 @RequestMapping("/api")
 public class FileDownloadController {
 	
-	public FileDownloadController(PatientListRepository patientListRepository) {
+	public FileDownloadController() {
 	}
 	
 	@GetMapping("/download/{patientListId}/{reportType}")

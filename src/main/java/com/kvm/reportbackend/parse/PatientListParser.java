@@ -3,10 +3,10 @@ package com.kvm.reportbackend.parse;
 import com.kvm.reportbackend.dao.*;
 import com.kvm.reportbackend.entity.*;
 import com.kvm.reportbackend.specify.PriceData;
+import com.kvm.reportbackend.upload_download.ReportWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,13 +28,19 @@ public class PatientListParser {
 	
 	private ServiceRepository serviceRepository;
 	
+	private TransneftPriceCategoryRepository transneftPriceCategoryRepository;
+	
+	private ReportWriter reportWriter;
+	
 	@Autowired
-	public PatientListParser(GenderRepository genderRepository, FactorRepository factorRepository, PatientRepository patientRepository, PatientListRepository patientListRepository, ServiceRepository serviceRepository) {
+	public PatientListParser(GenderRepository genderRepository, FactorRepository factorRepository, PatientRepository patientRepository, PatientListRepository patientListRepository, ServiceRepository serviceRepository, TransneftPriceCategoryRepository transneftPriceCategoryRepository, ReportWriter reportWriter) {
 		this.genderRepository = genderRepository;
 		this.factorRepository = factorRepository;
 		this.patientRepository = patientRepository;
 		this.patientListRepository = patientListRepository;
 		this.serviceRepository = serviceRepository;
+		this.transneftPriceCategoryRepository = transneftPriceCategoryRepository;
+		this.reportWriter = reportWriter;
 	}
 	
 	public PatientListParser() {
@@ -43,10 +49,14 @@ public class PatientListParser {
 	
 	// returns boolean: whether the list has patients, whose gender could not
 	// be identified automatically
-	public void parse(List<Patient> patients, PatientList patientList)
-			throws IOException, ParseException {
+	public void parse(List<Patient> patients, PatientList patientList, int moduleId) throws IOException {
 		
 		boolean hasUnidentifiedGender = false;
+		
+		// transneft module declarations
+		boolean hasUnidentifiedDepartment = false;
+		List<TransneftPriceCategory> transneftPriceCategories = transneftPriceCategoryRepository.findAll();
+		
 		
 		// get all factors
 		List<Factor> factors = factorRepository.findAll();
@@ -173,6 +183,13 @@ public class PatientListParser {
 				}
 			}
 			
+			// in transneft module include additional service 83 for all patients, then exclude 25 and 32
+			if (moduleId == 2) {
+				serviceIdsSet.add(83);
+				serviceIdsSet.remove(25);
+				serviceIdsSet.remove(32);
+			}
+			
 			// sort and save patient's unique services
 			patient.setServiceIdAsList(serviceIdsSet.stream().sorted().collect(Collectors.toList()));
 			
@@ -186,6 +203,42 @@ public class PatientListParser {
 			}
 			
 			patient.setPatientList(patientList);
+			
+			// Transneft module section
+			if (moduleId == 2) {
+				// if it's impossible to identify transneft price category, require specifying department
+				if ((patient.getDepartment().isEmpty() || patient.getDepartment()
+						.isBlank()) && patient.getTransneftBase() == null) {
+					hasUnidentifiedDepartment = true;
+				} else {
+					// try to find a specific category using keywords
+					for (TransneftPriceCategory transneftPriceCategory : transneftPriceCategories) {
+						for (String keyword : transneftPriceCategory.getKeywords().split(";")) {
+							if (patient.getDepartment().toLowerCase().indexOf(keyword) > 0) {
+								patient.setTransneftPriceCategory(transneftPriceCategory);
+								break;
+							}
+						}
+						// stop the loop if found a specific category
+						if (patient.getTransneftPriceCategory() != null) {
+							break;
+						}
+					}
+					
+					// if couldn't find a specific category using keywords, the patient uses the default one for
+					// his/her transneft base if it's specified, else he is required to specify a department
+					if (patient.getTransneftPriceCategory() == null && patient.getTransneftBase() != null) {
+						for (TransneftPriceCategory transneftPriceCategory : transneftPriceCategories) {
+							if (transneftPriceCategory.getTransneftBase().getId() == patient.getTransneftBase()
+									.getId() && transneftPriceCategory.getKeywords().equals("default")) {
+								patient.setTransneftPriceCategory(transneftPriceCategory);
+							}
+						}
+					} else if (patient.getTransneftPriceCategory() == null && patient.getTransneftBase() == null) {
+						hasUnidentifiedDepartment = true;
+					}
+				}
+			}
 			
 			// store the patient as unique
 			uniquePatients.add(patient);
@@ -210,7 +263,18 @@ public class PatientListParser {
 		patientList.setPricesAsList(priceDataList);
 		
 		// require specifying gender if there are patients with unidentified gender
-		patientList.setProcessStepId(hasUnidentifiedGender ? 2 : 3);
+		if (hasUnidentifiedGender) {
+			patientList.setProcessStepId(2);
+		} else if (moduleId == 2) {
+			if (hasUnidentifiedDepartment) {
+				patientList.setProcessStepId(5);
+			} else {
+				reportWriter.writeReports(patientList.getId(), moduleId);
+				patientList.setProcessStepId(4);
+			}
+		} else {
+			patientList.setProcessStepId(3);
+		}
 		patientList.setPatientQuantity(patientRepository.countAllByPatientListId(patientList.getId()));
 		patientListRepository.save(patientList);
 	}

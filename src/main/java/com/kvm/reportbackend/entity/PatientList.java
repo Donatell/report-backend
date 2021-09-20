@@ -1,5 +1,6 @@
 package com.kvm.reportbackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.kvm.reportbackend.dao.ServiceRepository;
 import com.kvm.reportbackend.specify.PriceData;
@@ -48,6 +49,9 @@ public class PatientList {
 	@Column(name = "prices")
 	private String prices;
 	
+	@Column(name = "module_id")
+	private int moduleId;
+	
 	public PatientList(String companyName) {
 		this.companyName = companyName;
 		this.extraService = "";
@@ -61,6 +65,7 @@ public class PatientList {
 	/**
 	 * @return {@code List} of {@code PriceData} without service titles created by splitting the prices string
 	 */
+	@JsonIgnore
 	public List<PriceData> getPricesAsList() {
 		if (this.prices == null || this.prices.isBlank() || this.prices.isEmpty()) {
 			return new ArrayList<>();

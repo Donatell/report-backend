@@ -98,7 +98,18 @@ public class SpecifyGenderController {
 					.collect(Collectors.toList());
 			
 			patientList.setPricesAsList(priceDataList);
-			patientList.setProcessStepId(3);
+			
+			// Transneft module doesn't require specifying prices, skip this step if it's transneft
+			if (patientList.getModuleId() == 2) {
+				if (patientRepository.findAllByPatientListIdAndTransneftPriceCategoryIsNull(patientList.getId())
+						.size() > 0) {
+					patientList.setProcessStepId(5);
+				} else {
+					patientList.setProcessStepId(4);
+				}
+			} else {
+				patientList.setProcessStepId(3);
+			}
 			patientListRepository.save(patientList);
 			
 			response.put("message", "Данные обновлены");

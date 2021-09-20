@@ -1,6 +1,7 @@
 package com.kvm.reportbackend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -41,6 +42,10 @@ public class Patient {
 	@Column(name = "department")
 	private String department;
 	
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "transneft_base_id")
+	private TransneftBase transneftBase;
+	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "patient_list_id")
 	@JsonBackReference
@@ -49,6 +54,11 @@ public class Patient {
 	@Column(name = "service_id")
 	private String serviceId;
 	
+	@ManyToOne()
+	@JoinColumn(name = "transneft_price_category_id")
+	private TransneftPriceCategory transneftPriceCategory;
+	
+	@JsonIgnore
 	public List<Integer> getServiceIdAsList() {
 		return Arrays.stream(serviceId.split(";")).map(Integer::parseInt).collect(Collectors.toList());
 	}
@@ -60,6 +70,7 @@ public class Patient {
 		this.serviceId = serviceIdList.stream().sorted().map(String::valueOf).collect(Collectors.joining(";"));
 	}
 	
+	@JsonIgnore
 	public List<Integer> getFactorIdAsList() {
 		if (this.factorId == null || this.factorId.isEmpty() || this.factorId.isBlank()) {
 			return new ArrayList<>();

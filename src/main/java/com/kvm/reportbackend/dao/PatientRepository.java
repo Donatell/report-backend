@@ -18,4 +18,6 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
 	List<Patient> findAllByPatientListId(long patientListId);
 	
 	void deleteAllByPatientListId(long patientListId);
+	
+	List<Patient> findAllByPatientListIdAndTransneftPriceCategoryIsNull(long patientListId);
 }

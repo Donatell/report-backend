@@ -71,7 +71,7 @@ public class SpecifyPricesController {
 		response.put("message", "Цены отправлены успешно");
 		
 		try {
-			reportWriter.writeReports(patientListId);
+			reportWriter.writeReports(patientListId, 1);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
