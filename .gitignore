@@ -8,9 +8,8 @@ src/main/resources/keystore.p12
 src/main/resources/static/**
 
 # report .xlsx files
-reports
 
-kvm-tools_ru.crt
+/reports
 
 HELP.md
 target/
